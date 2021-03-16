@@ -16,7 +16,7 @@ const rmrf = promisify(rimraf);
     const proxy = new GithubProxy({
         owner: "michael2995",
         repo: "zigbang-client",
-        auth: "f351b630395be5204918d62ff52917a1c546a850",
+        auth: process.env.AUTH as string,
     })
 
     const recentCommit = await proxy.getRecentCommit()
