@@ -1,0 +1,5 @@
+node_modules
+.vscode
+unzipped/
+__unzipped__temp__zigbang__client/
+.env
