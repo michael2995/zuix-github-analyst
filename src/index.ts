@@ -5,13 +5,15 @@ import path from "path";
 import rimraf from "rimraf"
 import { promisify } from "util";
 import { exec } from "child_process";
-import { getLowercaseSpinner } from "./Spinner";
+import ora from "ora"
 import * as dotenv from "dotenv"
 dotenv.config({path: path.resolve(__dirname, "../.env")})
 
 const rmrf = promisify(rimraf);
+const spinner = ora();
 
 (async () => {
+
     const cwd = process.cwd()
     const proxy = new GithubProxy({
         owner: "michael2995",
@@ -20,12 +22,13 @@ const rmrf = promisify(rimraf);
     })
 
     const recentCommit = await proxy.getRecentCommit()
+
     // Download repository zip
     const zipBuffer = await proxy.downloadZip(recentCommit.sha)
 
     // Start unzip
-    const unzipSpinner = getLowercaseSpinner("unzipping repository")
-    unzipSpinner.start()
+    spinner.text = "unzipping repository";
+    spinner.start()
     const unzipped = await JSZip.loadAsync(zipBuffer)
     const filenames = Object.keys(unzipped.files)
     const convertTasks = Object.values(unzipped.files).map((content) => {
@@ -49,10 +52,10 @@ const rmrf = promisify(rimraf);
             fs.writeFileSync(filepath, files[i])
         }
     })
-    unzipSpinner.stop()
+    spinner.stop()
 
     // Start analysis
-    const spinner = getLowercaseSpinner("analyzing zuix usage")
+    spinner.text = "analyzing zuix usage"
     spinner.start()
 
     const flags = Object.entries({
@@ -69,11 +72,6 @@ const rmrf = promisify(rimraf);
         console.log(stdout)
         spinner.stop()
 
-        // Clean up mess
-        const cleanupSpinner = getLowercaseSpinner("cleaning up")
-        cleanupSpinner.start()
         rmrf(dirpath)
-        cleanupSpinner.stop()
     })
-
 })()

@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/core"
-import { getLowercaseSpinner } from "./Spinner"
+import ora from "ora"
 
 export class GithubProxy {
     octokit: Octokit
@@ -28,7 +28,7 @@ export class GithubProxy {
     }
 
     async downloadZip(commitHash: string): Promise<ArrayBuffer> {
-        const spinner = getLowercaseSpinner("downloading repository")
+        const spinner = ora("downloading repository")
         spinner.start();
 
         const { data } = await this.octokit.request("GET /repos/{owner}/{repo}/zipball/{ref}", {
